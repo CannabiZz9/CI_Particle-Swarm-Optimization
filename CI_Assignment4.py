@@ -37,7 +37,7 @@ def MLP_forward(X, weights, layers):
     return input_layer
 
 # PSO optimization function
-def PSO_optimize(X_train, y_train, layers, num_particles=3, max_iter=10):
+def PSO_optimize(X_train, y_train, layers, num_particles=3, max_iter=20):
     """
     Particle Swarm Optimization for training MLP weights.
     """
@@ -143,22 +143,34 @@ def cross_validate(X, y, layers, num_folds=10):
     # Return the mean error and best weights
     return mean_error, best_weights
 
-# Function to plot predicted vs actual values using scatter plot
-def plot_predictions_vs_actual_scatter(X, y, best_weights, layers):
+
+# New function to plot errors as bars
+def plot_errors_as_bars(X, y, best_weights, layers):
+    # Generate predictions
     predictions = MLP_forward(X, best_weights, layers)
     
-    # Scatter Plot of Predictions vs Actual values
-    plt.figure(figsize=(8, 6))
-    plt.scatter(y, predictions, color='blue', alpha=0.6)
-    plt.plot([y.min(), y.max()], [y.min(), y.max()], color='red', linestyle='--')
-    plt.xlabel("Actual Values")
-    plt.ylabel("Predicted Values")
-    plt.title("Predicted vs Actual Values (Scatter Plot)")
+    # Calculate errors
+    errors = y - predictions.flatten()  # Ensure predictions are in the correct shape
+    
+    # Plotting the errors as a bar chart
+    plt.figure(figsize=(10, 6))
+    plt.bar(range(len(errors)), errors, color='blue', alpha=0.6)
+    
+    # Adding grid
+    plt.grid(True, linestyle='--', alpha=0.7)
+    
+    # Axis labels and title
+    plt.xlabel("Sample Index", fontsize=14)
+    plt.ylabel("Error (True - Predicted)", fontsize=14)
+    plt.title("Error (True Value - Predicted Value) per Sample", fontsize=16)
+    
+    # Show plot
+    plt.tight_layout()
     plt.show()
 
 # Example use case: Train the model and evaluate for 5-day prediction
 layers = [8, 20, 3, 1]  
 mean_error, best_weights = cross_validate(X, y_5days, layers)  # For 5-day prediction
 
-# Generate the scatter plot for predictions vs actual data using the best weights
-plot_predictions_vs_actual_scatter(X, y_5days, best_weights, layers)
+# Plot errors as a bar chart
+plot_errors_as_bars(X, y_5days, best_weights, layers)
